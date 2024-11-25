@@ -97,7 +97,7 @@ function view_email(email, mailbox) {
         </div>
         <hr>
         <div class="email-body">
-          <p>${email.body}</p>
+          <p>${email.body.replace(/\n/g, '<br>')}</p>
         </div>
       </div>
     `;
@@ -156,7 +156,13 @@ function reply(id) {
 
       document.querySelector('#compose-recipients').value = email.sender;
       document.querySelector('#compose-subject').value = email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`;
-      document.querySelector('#compose-body').value = `On ${email.timestamp}, ${email.sender} wrote:\n${email.body}`
+
+      // Fill the body with the original message, then put divider to seperate from the reply
+      document.querySelector('#compose-body').value = `
+        \n\n----------------------
+        On ${email.timestamp}, ${email.sender} wrote:
+        ${email.body.split('\n').map(line => `> ${line}`).join('\n')}
+      `
     })
     .catch(error => {
       console.error('Error fetching email for reply:', error);
