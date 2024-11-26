@@ -9,3 +9,9 @@ textarea {
 .unread {
     background-color: white;
 }
+
+.list-group-item:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+}
+

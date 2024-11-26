@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.querySelector("#compose-form").onsubmit = send_email;
 
+
   // By default, load the inbox
   load_mailbox('inbox');
 });
@@ -42,6 +43,10 @@ function load_mailbox(mailbox) {
 
       // List emails
       const emails_div = document.querySelector('#emails-view');
+      emails_div.innerHTML = `        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search emails...">
+            <button id="search-button" class="btn btn-primary">Search</button>
+          </div>`
       emails.forEach(email => {
 
         emailRead = email.read ? 'bg-light' : 'bg-white'; 
@@ -181,5 +186,38 @@ function archive(id, archived) {
   })
   .catch(error => {
     console.error('Error archiving/unarchiving email', error);
+  });
+}
+
+function search(query) {
+  // Make a fetch request to the backend to search emails
+  fetch(`/emails/search?query=${query}`)
+    .then(response => response.json())
+    .then(emails => {
+      display_emails(emails);
+    });
+}
+
+function display_emails(emails) {
+  // Clear the existing content
+  document.querySelector('#emails-view').innerHTML = '';
+
+  // Show search results title if there is a search query
+  const searchQuery = document.querySelector('#search-input').value;
+  if (searchQuery) {
+    document.querySelector('#emails-view').innerHTML = `<h3>Search Results for "${searchQuery}"</h3>`;
+  }
+
+  // Display each email in a styled format
+  emails.forEach(email => {
+    const emailElement = document.createElement('div');
+    emailElement.className = `list-group-item ${email.read ? 'bg-light' : ''}`;
+    emailElement.innerHTML = `
+      <strong class="pr-2">${email.sender}</strong>
+      <span class="text-center">${email.subject}</span>
+      <span class="float-right">${email.timestamp}</span>
+    `;
+    emailElement.onclick = () => view_email(email.id);
+    document.querySelector('#emails-view').append(emailElement);
   });
 }
