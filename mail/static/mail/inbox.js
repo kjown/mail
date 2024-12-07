@@ -192,9 +192,9 @@ function reply(id) {
       document.querySelector('#compose-subject').value = email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`;
 
       document.querySelector('#compose-body').value = `
-        \n\n----------------------
-        On ${email.timestamp}, ${email.sender} wrote:
-        ${email.body.split('\n').map(line => `> ${line}`).join('\n')}
+\n\n----------------------
+On ${email.timestamp}, ${email.sender} wrote:
+${email.body.split('\n').map(line => `> ${line}`).join('\n')}
       `
     })
     .catch(error => {
