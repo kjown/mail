@@ -7,6 +7,7 @@ The application is built using the [Django](https://www.djangoproject.com) web f
 
 [Project specification](https://cs50.harvard.edu/web/2020/projects/3/mail/)
 
+[Demo Video of My Work](https://youtu.be/n0r5V2DGTRY)
 
 ## Technologies Used
 - **Django**: A Python web framework for rapid development.
