@@ -43,10 +43,7 @@ function load_mailbox(mailbox) {
 
       // List emails
       const emails_div = document.querySelector('#emails-view');
-      emails_div.innerHTML = `        <div class="search-container">
-            <input type="text" id="search-input" placeholder="Search emails...">
-            <button id="search-button" class="btn btn-primary">Search</button>
-          </div>`
+
       emails.forEach(email => {
 
         emailRead = email.read ? 'bg-light' : 'bg-white'; 
@@ -73,41 +70,54 @@ function load_mailbox(mailbox) {
         emails_div.append(newEmail);
       }
   })
-
+  .catch(error => {
+    console.error('Error loading mailbox:', error);
+    document.querySelector('#emails-view').innerHTML = `<p class="text-danger">Error loading mailbox. Please try again later.</p>`;
+  });
 }
 
 function view_email(email, mailbox) {
-  // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
   const email_view = document.querySelector('#email-view');
 
-  // View individual email after clicking in the mailbox
   fetch(`/emails/${email.id}`)
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to fetch email');
+    }
+    return response.json();
+  })
   .then(email => {
-    // Show the email content: email’s sender, recipients, subject, timestamp, and body
+    if (!email) {
+      throw new Error('Email not found');
+    }
+
     const archive = email.archived ? 'Unarchive' : 'Archive';
     email_view.innerHTML = `
-      <div class="email-view">
-        <div class="email-header">
-          <h5><strong>From:</strong> <span class="email-sender">${email.sender}</span></h5>
-          <h5><strong>To:</strong> <span class="email-recipients">${email.recipients}</span></h5>
-          <h5><strong>Subject:</strong> <span class="email-subject">${email.subject}</span></h5>
+    <div class="email-view">
+      <div class="email-header d-flex justify-content-between align-items-center">
+        <div>
+          <h4><span class="email-subject">${email.subject}</span></h4   >
+          <p><strong>From:</strong> <span class="email-sender">${email.sender}</span></p>
           <div><small class="email-timestamp"><strong>Date:</strong> ${email.timestamp}</small></div>
-          <button class="btn btn-sm btn-outline-primary mt-2" id="reply" onclick="reply('${email.id}');">Reply</button>
-          <button class="btn btn-sm btn-outline-primary mt-2" id="archive" onclick="archive(${email.id}, ${email.archived});">${archive}</button>
         </div>
-        <hr>
-        <div class="email-body">
-          <p>${email.body.replace(/\n/g, '<br>')}</p>
+        <div class="email-buttons">
+          <button class="btn btn-sm btn-outline-primary" id="reply" onclick="reply('${email.id}');">Reply</button>
+          <button class="btn btn-sm btn-secondary" id="archive" onclick="archive(${email.id}, ${email.archived});">${archive}</button>
         </div>
       </div>
-    `;
+      <hr>
+      <div class="email-body">
+        <p>${email.body.replace(/\n/g, '<br>')}</p>
+      </div>
+    </div>
+  `;
+  
 
-    // Mark email as read
+    // Mark email as read if it is in the inbox
     if (mailbox === 'inbox') {
       fetch(`/emails/${email.id}`, {
         method: 'PUT',
@@ -115,24 +125,36 @@ function view_email(email, mailbox) {
             read: true
         })
       })
+      .catch(error => {
+        console.error('Error marking email as read:', error);
+      });
     }
-    
-    // If email in sent mailbox, remove the archive button
+
+    // Remove archive button if email is sent by user
     if (document.querySelector('#user-email').innerHTML === email.sender) {
-      document.querySelector('#archive').remove()
+      document.querySelector('#archive').remove();
     }
   })
-  .catch(error => {
-    console.error('Error viewing email: ', error)
-  });
 }
+
 
 function send_email(event) {
   event.preventDefault();
 
-  const recipients = document.querySelector("#compose-recipients").value;
-  const subject = document.querySelector("#compose-subject").value;
-  const body = document.querySelector("#compose-body").value;
+  const recipients = document.querySelector("#compose-recipients").value.trim();
+  const subject = document.querySelector("#compose-subject").value.trim();
+  const body = document.querySelector("#compose-body").value.trim();
+
+  if (!recipients || !subject || !body) {
+    alert('All fields are required!');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(recipients)) {
+    alert('Please enter a valid email address!');
+    return; 
+  }
 
   fetch('/emails', {
     method: 'POST',
@@ -142,14 +164,21 @@ function send_email(event) {
         body: body
     })
   })
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Failed to send email');
+    }
+    return response.json();
+  })  
   .then(result => {
-      // Print result
       console.log(result);
       load_mailbox('sent');
+  })
+  .catch(error => {
+      console.error('Error sending email:', error);
   });
-
 }
+
 
 function reply(id) {
   fetch(`/emails/${id}`)
@@ -162,7 +191,6 @@ function reply(id) {
       document.querySelector('#compose-recipients').value = email.sender;
       document.querySelector('#compose-subject').value = email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`;
 
-      // Fill the body with the original message, then put divider to seperate from the reply
       document.querySelector('#compose-body').value = `
         \n\n----------------------
         On ${email.timestamp}, ${email.sender} wrote:
@@ -189,26 +217,9 @@ function archive(id, archived) {
   });
 }
 
-function search(query) {
-  // Make a fetch request to the backend to search emails
-  fetch(`/emails/search?query=${query}`)
-    .then(response => response.json())
-    .then(emails => {
-      display_emails(emails);
-    });
-}
-
 function display_emails(emails) {
-  // Clear the existing content
   document.querySelector('#emails-view').innerHTML = '';
 
-  // Show search results title if there is a search query
-  const searchQuery = document.querySelector('#search-input').value;
-  if (searchQuery) {
-    document.querySelector('#emails-view').innerHTML = `<h3>Search Results for "${searchQuery}"</h3>`;
-  }
-
-  // Display each email in a styled format
   emails.forEach(email => {
     const emailElement = document.createElement('div');
     emailElement.className = `list-group-item ${email.read ? 'bg-light' : ''}`;

@@ -1,17 +1,166 @@
-textarea {
-    min-height: 400px;
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
 }
 
-.read {
-    background-color: #d7d7d7;
+/* Sidebar */
+.sidebar {
+    background-color: #2e2e2e;
+    color: white;
+    height: 100vh;
+    padding: 10px;
+    margin: 0;  
 }
 
-.unread {
+.sidebar-header h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.menu-items button {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+    background-color: #3b3b3b;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    font-size: 16px;
+}
+
+.menu-items button:hover {
+    background-color: #575757;
+}
+
+/* Main Content */
+#emails-view {
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.list-group-item {
+    padding: 10px;
     background-color: white;
+    cursor: pointer;
 }
 
 .list-group-item:hover {
-    transform: translateY(-5px); 
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1); 
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+#email-list {
+    padding: 0;
+}
+
+#email-view {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#compose-view {
+    background-color: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+#compose-form .form-group {
+    margin-bottom: 15px;
+}
+
+textarea {
+    min-height: 250px;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        padding: 5px;
+    }
+
+    .main-content {
+        padding: 5px;
+    }
+
+    .sidebar-header h3 {
+        font-size: 18px;
+    }
+
+    .menu-items button {
+        font-size: 14px;
+    }
+}
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;  
+}
+
+.login-container {
+    max-width: 400px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.btn {
+    width: 100%;
+    padding: 10px;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.email-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .email-buttons {
+    display: flex;
+    gap: 10px; 
+  }
+  
+  .email-buttons .btn {
+    font-size: 0.8rem; 
+    padding: 5px 10px; 
+  }
+  
+  .email-buttons .btn-sm {
+    font-size: 0.75rem;
+    padding: 3px 8px; 
+  }
+  
